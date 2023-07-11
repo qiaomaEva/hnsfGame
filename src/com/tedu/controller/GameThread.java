@@ -45,7 +45,7 @@ public class GameThread extends Thread{
     /**
      * 游戏的加载
      */
-    private static int mapID = 1;
+    private static int mapID = 3;
     private static int score = 0;
     private void gameLoad() {
         GameLoad.loadImg();         //加载图片
@@ -120,18 +120,19 @@ public class GameThread extends Thread{
         }
     }
 
-    public void MapPK(List<ElementObj> listA, List<ElementObj> listB){     //实现玩家进入草丛为隐身状态，除此之外其他元素会产生碰撞
-        for(ElementObj obj1 : listA){
-            if(obj1 instanceof Play){
-                Play player = (Play) obj1;               //获取玩家类
+    public void MapPK(List<ElementObj> listA, List<ElementObj> listB) {
+        for (ElementObj obj1 : listA) {
+            if (obj1 instanceof Play) {
+                Play player = (Play) obj1;  // 获取玩家类
+                boolean isInGrass = false;  // 记录玩家是否在草丛中，默认为false
                 for (ElementObj obj2 : listB) {
                     if (obj2 instanceof MapObj) {
-                        MapObj mapObj = (MapObj) obj2;   //获取地图元素
-                        if (player.pk(mapObj)) {         //如果玩家与地图元素碰撞
-                            if("GRASS".equals(mapObj.getName()))
-                                player.setInvisible(true);  //若为草元素则设置隐身状态为true
-                            else{
-                                switch (player.getFx()) {   //若为其他元素则阻碍玩家运动
+                        MapObj mapObj = (MapObj) obj2;  // 获取地图元素
+                        if (player.pk(mapObj)) {  // 如果玩家与地图元素碰撞
+                            if ("GRASS".equals(mapObj.getName())) {
+                                isInGrass = true;  // 玩家在草丛中
+                            } else {
+                                switch (player.getFx()) {
                                     case "play1Up":
                                         player.setY(player.getY() + 2);
                                         break;
@@ -147,13 +148,18 @@ public class GameThread extends Thread{
                                 }
                             }
                         }
-                    //    player.setInvisible(false);         //若与地图元素没有产生碰撞，则设置隐身状态为false
                     }
+                }
+                // 判断玩家是否在草丛中
+                if (isInGrass) {
+                    player.setInvisible(true);
+                } else {
+                    player.setInvisible(false);
                 }
             }
         }
-
     }
+
 
     public void moveAndUpdate(Map<GameElement, List<ElementObj>> all, long gameTime){
         //			GameElement.values();//隐藏方法  返回值是一个数组,数组的顺序就是定义枚举的顺序
